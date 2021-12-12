@@ -22,7 +22,7 @@ func BenchmarkConnectMySQL(b *testing.B) {
 	ctx := context.Background()
 	db.SetMaxIdleConns(-1)
 	b.ResetTimer()
-	b.Run("noConnPool", func(b *testing.B) {
+	b.Run("withoutConnPool", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			_, _ = db.ExecContext(ctx, "select 1")
@@ -30,7 +30,7 @@ func BenchmarkConnectMySQL(b *testing.B) {
 	})
 	db.SetMaxIdleConns(1)
 	b.ResetTimer()
-	b.Run("hasConnPool", func(b *testing.B) {
+	b.Run("withConnPool", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			_, _ = db.ExecContext(ctx, "select 1")
