@@ -956,6 +956,7 @@ func (db *DB) shortestIdleTimeLocked() time.Duration {
 //
 // The default max idle connections is currently 2. This may change in
 // a future release.
+// 类似违章建筑，如果连接池大小 > 最大连接数，则连接池大小改成最大连接数；同时如果连接池中的连接数已经大于这次设置的数量，就关闭一部分连接。
 func (db *DB) SetMaxIdleConns(n int) {
 	db.mu.Lock()
 	if n > 0 {
@@ -1274,6 +1275,7 @@ func (db *DB) conn(ctx context.Context, strategy connReuseStrategy) (*driverConn
 	// Prefer a free connection, if possible.
 	numFree := len(db.freeConn)
 	if strategy == cachedOrNewConn && numFree > 0 {
+		// 如果写成 db.freeConn = db.freeConn[1:]，会导致cap(freeConn)变小
 		conn := db.freeConn[0]
 		copy(db.freeConn, db.freeConn[1:])
 		db.freeConn = db.freeConn[:numFree-1]
