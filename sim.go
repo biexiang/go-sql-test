@@ -54,6 +54,9 @@ func GetDB() (*sql.DB, error) {
 
 func main() {
 	ctx := context.Background()
+	// mysql>  SET GLOBAL max_connections = 50; => "Error 1040: Too many connections
+	simTest(ctx, 100, 51, 51)
+
 	//  maxIdle=-1代表不使用连接池
 	// 连接复用的前提是，当前打开连接数 <= 最大连接数
 	// openConn = Idle + InUse
@@ -73,7 +76,7 @@ func main() {
 	//simTest(ctx, 30, 20, 20)
 
 	// 有连接池 => MaxIdleClosed > 0 . WaitCount > 0， 连接池太小，导致连接没法复用
-	simTest(ctx, 30, 20, 1)
+	//simTest(ctx, 30, 20, 1)
 }
 
 func simTest(ctx context.Context, concurrencyConn, maxOpen, maxIdle int) {

@@ -43,11 +43,11 @@ type DB struct {
   maxIdleCount      int                    		// 连接池大小，0代表默认连接数2，负数代表0
   maxOpen           int                    		// 最大打开的连接数，包含在连接池中的闲散连接，小于等于0表示不限制
   maxLifetime       time.Duration          		// 一个连接在连接池中最长的生存时间
-  maxIdleTime       time.Duration          		// 一个连接在被关掉前的最大空闲时间
+  maxIdleTime       time.Duration          		// Go1.5添加，一个连接在被关掉前的最大空闲时间
     
   cleanerCh         chan struct{}				// channel用于通知清理连接
   waitCount         int64          				// 等待的连接数，如果maxIdelCount为0，waitCount就是一直为0
-  maxIdleClosed     int64          				// 释放连接时，因为连接池已满而被关闭的连接数
+  maxIdleClosed     int64          				// Go1.5添加，释放连接时，因为连接池已满而被关闭的连接数
   maxLifetimeClosed int64          				// 连接超过生存时间后而被关闭的连接数
 
   stop func() 									// stop cancels the connection opener and the session resetter.
@@ -70,7 +70,7 @@ type driverConn struct {
 
   // guarded by db.mu
   inUse      bool
-  returnedAt time.Time 					// 类似于updated_time，连接创建或者释放的时间
+  returnedAt time.Time 					// 类似于updated_time，For maxIdleTime，计算空闲时间
   onPut      []func() 					// code (with db.mu held) run when conn is next returned
   dbmuClosed bool     					// same as closed, but guarded by db.mu, for removeClosedStmtLocked
 }
